@@ -11,11 +11,12 @@ requires 'Moose';
 requires 'MooseX::Traits';
 requires 'MooseX::Types';
 requires 'MooseX::Types::Moose';
+requires 'MooseX::Types::Structured';
 requires 'namespace::clean';
 requires 'Text::Balanced' => 2.000000;
 
+test_requires 'aliased';
 test_requires 'Test::More';
-test_requires 'Test::Differences';
 test_requires 'Test::Exception';
 
 postamble(<<"EOM");
@@ -25,7 +26,10 @@ testcover: pm_to_blib
 \tcover
 EOM
 
-Meta->resources('repository' => 'http://github.com/ashb/parse-method-signatures/tree/master');
+resources(
+    'repository' => 'git://github.com/ashb/parse-method-signatures.git',
+    'homepage'   => 'http://github.com/ashb/parse-method-signatures/tree/master',
+);
 
 auto_install;
 WriteAll;

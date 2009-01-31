@@ -1,7 +1,8 @@
 package Parse::Method::Signatures::Param;
 
 use Moose;
-use MooseX::Types::Moose qw/Bool Str ArrayRef/;
+use MooseX::Types::Structured qw/Tuple/;
+use MooseX::Types::Moose qw/Bool Str ArrayRef HashRef/;
 
 use namespace::clean -except => 'meta';
 
@@ -15,15 +16,14 @@ has required => (
 
 has sigil => (
     is       => 'ro',
-    isa      => 'Str',
+    isa      => Str,
     required => 1,
 );
 
 has type_constraints => (
     is         => 'ro',
-    isa        => ArrayRef [Str],
+    isa        => 'Parse::Method::Signatures::TypeConstraint',
     predicate  => 'has_type_constraints',
-    auto_deref => 1,
 );
 
 has default_value => (
@@ -34,9 +34,16 @@ has default_value => (
 
 has constraints => (
     is         => 'ro',
-    isa        => ArrayRef [Str],
+    isa        => ArrayRef[Str],
     predicate  => 'has_constraints',
     auto_deref => 1,
+);
+
+has param_traits => (
+    is         => 'ro',
+    isa        => ArrayRef[Tuple[Str, Str]],
+    predicate  => 'has_traits',
+    auto_deref => 1
 );
 
 has '+_trait_namespace' => (
@@ -46,7 +53,7 @@ has '+_trait_namespace' => (
 sub _stringify_type_constraints {
     my ($self) = @_;
     return $self->has_type_constraints
-        ? join(q{|}, $self->type_constraints) . q{ }
+        ? $self->type_constraints->str . q{ }
         : q{};
 }
 
@@ -63,6 +70,12 @@ sub _stringify_constraints {
     return q{ where } . join(q{ where }, $self->constraints);
 }
 
+sub _stringify_traits {
+    my ($self) = @_;
+    return q{} unless $self->has_traits;
+    return q{ } . join q{ }, map { @{ $_ } } $self->param_traits;
+}
+
 sub to_string {
     my ($self) = @_;
     my $ret = q{};
@@ -72,6 +85,7 @@ sub to_string {
     $ret .= $self->_stringify_required;
     $ret .= $self->_stringify_default_value;
     $ret .= $self->_stringify_constraints;
+    $ret .= $self->_stringify_traits;
 
     return $ret;
 }

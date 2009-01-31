@@ -35,6 +35,8 @@ my @sigs = (
     ['($self: $moo)',           'invocant and positional'],
     ['(:apan($affe))',          'long named'], # called as $obj->foo(apan => $value)
     ['(:apan($affe)!)',         'required long named'],
+    ['($self: :$x)',            'named param with invocant'],
+    ['($: :$x)',                'named param with dummy invocant'],
     ['($x = 42)',               'positional with default'],
     ['(:$x = 42)',              'named with default'],
     ['($x = "foo")',            'simple string default'],
@@ -69,6 +71,14 @@ my @sigs = (
     ['({:$x, :$y, %r}, :$z)',   'hash ref unpacking combined with named'],
     ['(:foo({:$x, :$y, %r}))',  'named hash ref unpacking'],
     ['(:foo($), :bar(@))',      'named placeholders'],
+    ['(Foo[Bar|Baz[Moo]]|Kooh $foo)',
+                                'complex parameterized type'],
+    ['($foo is coerce)',        'positional with traits (is)'],
+    ['($foo does coerce)',      'positional with traits (does)'],
+    ['(:$foo is coerce)',       'named  with traits (is)'],
+    ['(:$foo does coerce)',     'named with traits (does)'],
+    ['($foo is copy is ro does coerce)',
+                                'multiple traits'],
 );
 
 my @alternative = (
@@ -103,6 +113,9 @@ my @invalid = (
     ['($foo = "pwd\')',         'unbalanced quotes'],
     ['(:$x:)',                  'named invocant is invalid'],
     ['($x! = "foo":)',          'default value for invocant is invalid'],
+    ['($foo is bar moo is bo)', 'invalid traits'],
+    ['(Foo:: Bar $foo)',        'invalid spaces in TC'],
+    ['(Foo ::Bar $foo)',        'invalid spaces in TC'],
 );
 
 plan tests => scalar @sigs * 3 + scalar @alternative + scalar @invalid;
