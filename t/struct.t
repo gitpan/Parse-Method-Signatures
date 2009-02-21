@@ -1,9 +1,10 @@
 use strict;
 use warnings;
 
-use Test::More tests => 31;
+use Test::More tests => 36;
 use Test::Differences;
 use Test::Moose;
+use MooseX::Types::Structured qw/Dict/;
 
 use Parse::Method::Signatures;
 
@@ -33,6 +34,10 @@ BEGIN {
     ok(!$param->has_constraints);
 
     does_ok($param, $_) for Positional, Bindable;
+
+    my $tc = $param->meta_type_constraint;
+    isa_ok($tc, 'Moose::Meta::TypeConstraint');
+    is($tc->name, 'Str');
 }
 
 {
@@ -62,29 +67,41 @@ BEGIN {
 }
 
 {
-
-    my $param = Parse::Method::Signatures->param('Foo[Corge,Bar|Baz[Moo,Kooh]]|Garply $foo');
+    my $type = 'HashRef[ArrayRef[Moo]|Str]|Num';
+    my $param = Parse::Method::Signatures->param("${type} \$foo");
     eq_or_diff($param->type_constraints->data,
       { 
         -or => [
-          { -type => 'Foo',
+          { -type => 'HashRef',
             -params => [
-              'Corge',
               { -or => [
-                  'Bar',
-                  { -type => 'Baz',
-                    -params => [ qw/Moo Kooh/ ]
-                  }
+                  { -type => 'ArrayRef',
+                    -params => [ qw/Moo/ ]
+                  },
+                  'Str',
                 ]
               }
             ]
           },
-          'Garply'
+          'Num'
         ]
       }
     );
 
-    $param = Parse::Method::Signatures->param('Dict[foo => Int] $foo');
+    my $tc = $param->meta_type_constraint;
+    isa_ok($tc, 'Moose::Meta::TypeConstraint');
+    is($tc->name, $type);
+}
+
+{
+    my $param = Parse::Method::Signatures->param(
+        input => 'Dict[foo => Int] $foo',
+        type_constraint_callback => sub {
+            my ($tc, $name) = @_;
+            return Dict if $name eq 'Dict';
+            return $tc->find_registered_constraint($name);
+        },
+    );
     eq_or_diff($param->type_constraints->data,
       { -type => 'Dict',
         -params => [
@@ -93,6 +110,7 @@ BEGIN {
         ]
       }
     );
+    is($param->meta_type_constraint->name, 'MooseX::Types::Structured::Dict[foo,Int]');
 }
 
 =for later

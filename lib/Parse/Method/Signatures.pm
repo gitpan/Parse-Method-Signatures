@@ -1,7 +1,7 @@
 package Parse::Method::Signatures;
 
 use Moose;
-use MooseX::Types::Moose qw/ArrayRef HashRef ScalarRef Int Str/;
+use MooseX::Types::Moose qw/ArrayRef HashRef ScalarRef CodeRef Int Str/;
 use Text::Balanced qw(
   extract_codeblock
   extract_variable
@@ -9,13 +9,12 @@ use Text::Balanced qw(
 );
 
 use Parse::Method::Signatures::ParamCollection;
-use Parse::Method::Signatures::TypeConstraint;
 use Parse::Method::Signatures::Types qw/PositionalParam NamedParam UnpackedParam/;
 use Carp qw/croak/;
 
 use namespace::clean -except => 'meta';
 
-our $VERSION = '1.001001';
+our $VERSION = '1.002000';
 our %LEXTABLE;
 
 has 'tokens' => (
@@ -56,6 +55,18 @@ has 'param_class' => (
     default => 'Parse::Method::Signatures::Param',
 );
 
+has 'type_constraint_class' => (
+    is      => 'ro',
+    isa     => Str,
+    default => 'Parse::Method::Signatures::TypeConstraint',
+);
+
+has 'type_constraint_callback' => (
+    is        => 'ro',
+    isa       => CodeRef,
+    predicate => 'has_type_constraint_callback',
+);
+
 sub BUILD {
     my ($self) = @_;
 
@@ -63,6 +74,7 @@ sub BUILD {
         for map { $self->$_ } qw/
             signature_class
             param_class
+            type_constraint_class
         /;
 }
 
@@ -84,6 +96,14 @@ sub create_param {
     return $self->param_class->new_with_traits(traits => \@traits, %{ $args });
 }
 
+override BUILDARGS => sub {
+  my $class = shift;
+
+  return { input => $_[0] } if @_ == 1 and !ref $_[0];
+
+  return super();
+};
+
 # signature: O_PAREN
 #            invocant
 #            params
@@ -97,7 +117,7 @@ sub create_param {
 sub signature {
   my $self = shift;
 
-  $self = $self->new(@_ == 1 ? (input => $_[0]) : @_);
+  $self = $self->new(@_) unless blessed($self);
 
   $self->assert_token('(');
 
@@ -201,7 +221,6 @@ sub unpacked_hash {
     my $param = $self->param
       or $self->assert_token('var'); # not what we are asserting, but should give a useful error message
 
-    $DB::single = 1;
     croak "Cannot have positional parameters in an unpacked-hash: " . $param->to_string
       if $param->sigil eq '$' && PositionalParam->check($param);
 
@@ -240,7 +259,7 @@ sub param {
   my $self = shift;
   my $class_meth;
   unless (blessed($self)) {
-    $self = $self->new( @_ == 1 ? (input => $_[0]) : @_);
+    $self = $self->new(@_) unless blessed($self);
     $class_meth = 1;
   }
 
@@ -249,7 +268,13 @@ sub param {
 
   my $token = $self->token;
   if (my @tc = $self->tc) {
-    my $tc = Parse::Method::Signatures::TypeConstraint->new(str => $tc[1], data => $tc[0]);
+    my $tc = $self->type_constraint_class->new(
+        str => $tc[1], 
+        data => $tc[0],
+        $self->has_type_constraint_callback
+            ? (tc_callback => $self->type_constraint_callback)
+            : ()
+    );
     $param->{type_constraints} = $tc;
     $token = $self->token;
     $consumed = 1;
@@ -643,7 +668,9 @@ deemed useful for L<TryCatch> and L<MooseX::Method::Signatures>.
 =head1 METHODS
 
 There are only two public methods to this module, both of which should be
-called as class methods.
+called as class methods. Both methods accept  either a single (non-ref) scalar
+as the value for the L</input> attribute, or normal new style arguments (hash
+or hash-ref).
 
 =head2 signature
 
@@ -658,6 +685,61 @@ on error.
 
 Attempts to parse the specification for a single parameter. Returns value or
 croaks on error.
+
+=head1 ATTRIBUTES
+
+All the attributes on this class are read-only.
+
+=head2 input
+
+B<Type:> Str
+
+The string to parse.
+
+=head2 offset
+
+B<Type:> Int
+
+Offset into L</input> at which to start parsing. Useful for using with
+Devel::Declare linestring
+
+=head2 signature_class
+
+B<Default:> Parse::Method::Signatures::Sig
+
+B<Type:> Str (loaded on demand class name)
+
+=head2 param_class
+
+B<Default:> Parse::Method::Signatures::Param
+
+B<Type:> Str (loaded on demand class name)
+
+=head2 type_constraint_class
+
+B<Default:> L<Parse::Method::Signatures::TypeConstraint>
+
+B<Type:> Str (loaded on demand class name)
+
+Class that is used to turn the parsed type constraint into an actual
+L<Moose::Meta::TypeConstraint> object.
+
+=head2 type_constraint_callback
+
+B<Type:> Code Ref
+
+Passed to the constructor of L</type_constraint_class>. Default implementation
+of this callback asks Moose for a type constrain matching the name passed in.
+If you have more complex requirements, such as parsing types created by
+L<MooseX::Types> then you will want a callback similar to this:
+
+ # my $target_package defined elsewhere.
+ my $tc_cb = sub {
+   my ($pms_tc, $name) = @_;
+   my $code = $target_package->can($name);
+   $code ? eval { $code->() } 
+         : $pms_tc->find_registered_constraint($name);
+ }
 
 =head1 CAVEATS
 

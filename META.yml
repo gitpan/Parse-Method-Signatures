@@ -3,12 +3,13 @@ abstract: 'Perl6 like method signature parser'
 author:
   - 'Ash Berlin <ash@cpan.org>.'
 build_requires:
+  MooseX::Types::Structured: 0
   Test::Differences: 0
   Test::Exception: 0
   Test::More: 0
   aliased: 0
 distribution_type: module
-generated_by: 'Module::Install version 0.770'
+generated_by: 'Module::Install version 0.790'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -31,4 +32,4 @@ resources:
   homepage: http://github.com/ashb/parse-method-signatures/tree/master
   license: http://dev.perl.org/licenses/
   repository: git://github.com/ashb/parse-method-signatures.git
-version: 1.001001
+version: 1.002000
