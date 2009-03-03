@@ -18,6 +18,8 @@ my @sigs = (
     ['(Int $x, Str $y)',        'multiple typed positionals'],
     ['(Animal|Human $affe)',    'type constraint alternative'],
     ['(Some::Class $x)',        'type constraint with colon'],
+    ['(Some2Class $x)',         'type constraint with number in middle',    'TODO'],
+    ['(SomeClass2 $x)',         'type constraint with number at end',       'TODO'],
     ['(Tuple[Int,Str] $x)',     'parameterized types'],
     ['(Str|Tuple[Int,Str] $x)', 'parameterized with alternative'],
     ['($: $x, $y, $z)',         'dummy invocant'],
@@ -51,6 +53,8 @@ my @sigs = (
                                 'complex with constraint'],
     ['(Str $name, Bool :$excited = 0)',
                                 'complex with default'],
+    [q#(SomeClass $thing where { $_->can('stuff') })#, 
+                                'complex with constraint'],
     [q#(SomeClass $thing where { $_->can('stuff') }: Str $bar = "apan", Int :$baz = 42 where { $_ % 2 == 0 } where { $_ > 10 })#,
                                 'complex invocant, defaults and constraints'],
     ['(@x)',                    'positional array'],
@@ -58,6 +62,8 @@ my @sigs = (
     ['(%x)',                    'positinal hash'],
     ['($x, %y)',                'positinal scalar and hash'],
     ['([$x, $y])',              'simple array ref unpacking'],
+    ['(ArrayRef [$x, $y])',     'simple array ref unpacking with unparameterized type', 'TODO'],
+    ['(ArrayRef[] [$x, $y])',   'simple array ref unpacking with empty parameterized type',],
     ['([@x])',                  'array ref unpacking into array'],
     ['([$x, $y, @rest])',       'array ref unpacking into scalars and arrays'],
     ['($x, [$y, $z, @rest])',   'array ref unpacking combined with normal positionals'],
@@ -65,6 +71,7 @@ my @sigs = (
     ['([$y, $z, @rest], :$x)',  'array ref unpacking combined with named'],
     ['(:foo([$x, $y, @rest]))', 'named array ref unpacking'],
     ['({%x})',                  'hash ref unpacking into hash'],
+    ['(:foo({%x}))',            'labeld hash ref unpacking into hash'],
     ['({:$x, :$y, %rest})',     'hash ref unpacking into scalars and hash'],
     ['($x, {:$y, :$z, %rest})', 'hash ref unpacking combined with normal positionals'],
     ['({:$y, :$z, %rest}, $x)', 'hash ref unpacking combined with normal positionals'],
@@ -75,10 +82,17 @@ my @sigs = (
                                 'complex parameterized type'],
     ['($foo is coerce)',        'positional with traits (is)'],
     ['($foo does coerce)',      'positional with traits (does)'],
-    ['(:$foo is coerce)',       'named  with traits (is)'],
+    ['(:$foo is coerce)',       'named with traits (is)'],
     ['(:$foo does coerce)',     'named with traits (does)'],
     ['($foo is copy is ro does coerce)',
                                 'multiple traits'],
+
+    ['($x = "foo")',            'string default'],
+    ['($x = q"fo)o")',          'string default'],
+    ['($x = [ ])',              'simple array default'],
+    ['($x = { })',              'simple hash default'],
+    ['($x = 0xf)',              'hex default'],
+    ['($x = 0xfF)',             'hex default'],
 );
 
 my @alternative = (
@@ -87,6 +101,8 @@ my @alternative = (
     ['(:$x = "foo")',           '(:$x = "foo")',           'default value stringifies okay'],
     ['($self: $moo)',           '($self: $moo)',           'invocant and positional'],
     ['(Animal | Human $affe)',  '(Animal|Human $affe)',    'type constraint alternative with whitespace'],
+    ['(HashRef[foo => Str] $foo)',
+                                '(HashRef["foo",Str] $foo)', 'Hash with required key'],
 );
 
 my @invalid = (
@@ -109,13 +125,20 @@ my @invalid = (
     ['(:{%x})',                 'named hash ref unpacking without label'],
     ['({$x, $y})',              'unpacking hash ref to something not named'],
     ['($foo where { 1, $bar)',  'unbalanced { in conditional'],
-    ['($foo = `pwd`)',          'invalid quote op'],
+    ['($foo = `pwd`)',          'invalid quote op', "Do we want to allow this"],
     ['($foo = "pwd\')',         'unbalanced quotes'],
     ['(:$x:)',                  'named invocant is invalid'],
     ['($x! = "foo":)',          'default value for invocant is invalid'],
     ['($foo is bar moo is bo)', 'invalid traits'],
     ['(Foo:: Bar $foo)',        'invalid spaces in TC'],
     ['(Foo ::Bar $foo)',        'invalid spaces in TC'],
+    ['(@y: $foo)',              'invalid invocant'],
+    ['(@y,)',                   'trailing comma'],
+    ['($x where [ foo ])',      'no block after where'],
+    ['($x does $x)',            'invalid param trait'],
+    ['(:foo(Str $x))',          'invalid label contents'],
+    # This should probably be valid
+    ['($x = $a[0])',            'invalid label contents'],
 );
 
 plan tests => scalar @sigs * 3 + scalar @alternative + scalar @invalid;

@@ -26,10 +26,10 @@ requires:
   MooseX::Types: 0
   MooseX::Types::Moose: 0
   MooseX::Types::Structured: 0
-  Text::Balanced: 2
+  PPI: 1.203
   namespace::clean: 0
 resources:
   homepage: http://github.com/ashb/parse-method-signatures/tree/master
   license: http://dev.perl.org/licenses/
   repository: git://github.com/ashb/parse-method-signatures.git
-version: 1.002000
+version: 1.003000

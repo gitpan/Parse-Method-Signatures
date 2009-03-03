@@ -1,4 +1,4 @@
-use inc::Module::Install 0.77;
+use inc::Module::Install 0.79;
 
 use strict;
 use warnings;
@@ -13,7 +13,7 @@ requires 'MooseX::Types';
 requires 'MooseX::Types::Moose';
 requires 'MooseX::Types::Structured';
 requires 'namespace::clean';
-requires 'Text::Balanced' => 2.000000;
+requires 'PPI' => '1.203';
 
 test_requires 'aliased';
 test_requires 'Test::More';
@@ -33,5 +33,5 @@ resources(
     'homepage'   => 'http://github.com/ashb/parse-method-signatures/tree/master',
 );
 
-auto_install;
+#auto_install;
 WriteAll;
