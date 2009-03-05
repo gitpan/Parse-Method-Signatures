@@ -32,4 +32,4 @@ resources:
   homepage: http://github.com/ashb/parse-method-signatures/tree/master
   license: http://dev.perl.org/licenses/
   repository: git://github.com/ashb/parse-method-signatures.git
-version: 1.003001
+version: 1.003002
