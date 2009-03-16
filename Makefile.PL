@@ -9,10 +9,10 @@ all_from 'lib/Parse/Method/Signatures.pm';
 requires 'List::MoreUtils';
 requires 'Moose';
 requires 'MooseX::Traits';
-requires 'MooseX::Types';
+requires 'MooseX::Types' => '0.10';
 requires 'MooseX::Types::Moose';
 requires 'MooseX::Types::Structured';
-requires 'namespace::clean';
+requires 'namespace::clean' => '0.10';
 requires 'PPI' => '1.203';
 
 test_requires 'aliased';
@@ -33,5 +33,7 @@ resources(
     'homepage'   => 'http://github.com/ashb/parse-method-signatures/tree/master',
 );
 
+jsonmeta();
+auto_provides;
 #auto_install;
 WriteAll;

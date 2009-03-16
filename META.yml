@@ -1,35 +1,44 @@
----
-abstract: 'Perl6 like method signature parser'
-author:
-  - 'Ash Berlin <ash@cpan.org>.'
-build_requires:
-  MooseX::Types::Structured: 0
-  Test::Differences: 0
-  Test::Exception: 0
-  Test::More: 0
-  aliased: 0
-distribution_type: module
-generated_by: 'Module::Install version 0.790'
-license: perl
-meta-spec:
-  url: http://module-build.sourceforge.net/META-spec-v1.4.html
-  version: 1.4
-name: Parse-Method-Signatures
-no_index:
-  directory:
-    - inc
-    - t
-requires:
-  List::MoreUtils: 0
-  Moose: 0
-  MooseX::Traits: 0
-  MooseX::Types: 0
-  MooseX::Types::Moose: 0
-  MooseX::Types::Structured: 0
-  PPI: 1.203
-  namespace::clean: 0
-resources:
-  homepage: http://github.com/ashb/parse-method-signatures/tree/master
-  license: http://dev.perl.org/licenses/
-  repository: git://github.com/ashb/parse-method-signatures.git
-version: 1.003002
+{
+   "no_index" : {
+      "directory" : [
+         "inc",
+         "t"
+      ]
+   },
+   "resources" : {
+      "homepage" : "http://github.com/ashb/parse-method-signatures/tree/master",
+      "repository" : "git://github.com/ashb/parse-method-signatures.git",
+      "license" : "http://dev.perl.org/licenses/"
+   },
+   "meta-spec" : {
+      "version" : 1.4,
+      "url" : "http://module-build.sourceforge.net/META-spec-v1.4.html"
+   },
+   "generated_by" : "Module::Install version 0.790",
+   "distribution_type" : "module",
+   "writen_by" : "Module::Install::JSONMETA version 3.000",
+   "version" : "1.003003",
+   "name" : "Parse-Method-Signatures",
+   "author" : [
+      "Ash Berlin <ash@cpan.org>."
+   ],
+   "license" : "perl",
+   "build_requires" : {
+      "Test::More" : 0,
+      "Test::Differences" : 0,
+      "Test::Exception" : 0,
+      "MooseX::Types::Structured" : 0,
+      "aliased" : 0
+   },
+   "requires" : {
+      "PPI" : "1.203",
+      "MooseX::Types::Moose" : 0,
+      "MooseX::Types::Structured" : 0,
+      "MooseX::Traits" : 0,
+      "namespace::clean" : "0.10",
+      "MooseX::Types" : "0.10",
+      "List::MoreUtils" : 0,
+      "Moose" : 0
+   },
+   "abstract" : "Perl6 like method signature parser"
+}

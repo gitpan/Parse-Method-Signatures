@@ -1,16 +1,21 @@
 package Parse::Method::Signatures;
 
 use Moose;
-use MooseX::Types::Moose qw/ArrayRef HashRef ScalarRef CodeRef Int Str/;
+use MooseX::Types::Moose qw/
+  ArrayRef HashRef ScalarRef CodeRef Int Str ClassName
+/;
 
 use PPI;
 use Moose::Util::TypeConstraints;
 use Parse::Method::Signatures::ParamCollection;
-use Parse::Method::Signatures::Types qw/PositionalParam NamedParam UnpackedParam/;
+use Parse::Method::Signatures::Types qw/
+  PositionalParam NamedParam UnpackedParam
+/;
+
 use Carp qw/croak/;
 
 use namespace::clean -except => 'meta';
-our $VERSION = '1.003002';
+our $VERSION = '1.003003';
 our $ERROR_LEVEL = 0;
 our %LEXTABLE;
 our $DEBUG = $ENV{PMS_DEBUG} || 0;
@@ -55,6 +60,12 @@ has 'type_constraint_callback' => (
     is        => 'ro',
     isa       => CodeRef,
     predicate => 'has_type_constraint_callback',
+);
+
+has 'from_namespace' => (
+    is        => 'rw',
+    isa       => ClassName,
+    predicate => 'has_from_namespace'
 );
 
 has 'ppi_doc' => (
@@ -283,7 +294,6 @@ sub signature {
 
   my $sig = $self->signature_class->new($args);
 
-  #return wantarray ? ($sig, $self->remaining_input) : $sig;
   return $sig;
 }
 
@@ -342,7 +352,7 @@ sub param {
   return !$class_meth
       ? $param
       : wantarray
-      ? ($param, "")
+      ? ($param, $self->remaining_input)
       : $param;
 }
 
@@ -485,6 +495,8 @@ sub _param_typed {
     ppi  => $tc,
     $self->has_type_constraint_callback
       ? (tc_callback => $self->type_constraint_callback)
+      : $self->from_namespace
+      ? ( from_namespace => $self->from_namespace )
       : ()
   );
   $param->{type_constraints} = $tc;
@@ -741,31 +753,6 @@ sub assert_token {
   return $self->consume_token;
 }
 
-# Add $token to $collection, preserving WS/comment nodes prior to $token
-sub _add_with_ws {
-  my ($self, $collection, $token, $trailing) = @_;
-
-  my @elements = ($token);
-
-  my $t = $token->previous_token;
-
-  while ($t && !$t->significant) {
-    unshift @elements, $t;
-    $t = $t->previous_token;
-  }
-
-  if ($trailing) {
-    $t = $token->next_token;
-    while ($t && !$t->significant) {
-      push @elements, $t;
-      $t = $t->next_token;
-    }
-  }
-
-  $collection->add_element($_->clone) for @elements;
-
-  return $collection;
-}
 
 %LEXTABLE = (
   where => 'WHERE',
@@ -809,6 +796,17 @@ sub consume_token {
   }
   $self->_set_ppi( $ppi );
   return $ret;
+}
+
+sub remaining_input {
+  my $tok = $_[0]->ppi;
+  my $buff;
+
+  while ( !$tok->isa('PPI::Token::EOF') ) {
+    $buff .= $tok->content;
+    $tok = $tok->next_token;
+  }
+  return $buff;
 }
 
 __PACKAGE__->meta->make_immutable;
@@ -968,9 +966,22 @@ B<Type:> Str (loaded on demand class name)
 Class that is used to turn the parsed type constraint into an actual
 L<Moose::Meta::TypeConstraint> object.
 
+=head2 from_namespace
+
+B<Type:> ClassName
+
+Let this module know which package it is parsing signatures form. This is
+entirely optional, and the only effect is has is on parsing type constraints.
+
+If this attribute is set (and C<type_constraint_callback> is not) it is passed
+to L</type_constraint_class> which can use it to introspect the package
+(commmonly for L<MooseX::Types> exported types). See
+L<Parse::Method::Signature::TypeConstraints/find_registered_constraint> for
+more details.
+
 =head2 type_constraint_callback
 
-B<Type:> Code Ref
+B<Type:> CodeRef
 
 Passed to the constructor of L</type_constraint_class>. Default implementation
 of this callback asks Moose for a type constrain matching the name passed in.
@@ -984,6 +995,9 @@ L<MooseX::Types> then you will want a callback similar to this:
    $code ? eval { $code->() } 
          : $pms_tc->find_registered_constraint($name);
  }
+
+Note that the above example is better provided by providing the L</in_package>
+attribute.
 
 =head1 CAVEATS
 

@@ -1,7 +1,8 @@
 package Parse::Method::Signatures::TypeConstraint;
 
 use Moose;
-use MooseX::Types::Moose qw/Str HashRef CodeRef/;
+use MooseX::Types::Util qw/has_available_type_export/;
+use MooseX::Types::Moose qw/Str HashRef CodeRef ClassName/;
 use Parse::Method::Signatures::Types qw/TypeConstraint/;
 
 use namespace::clean -except => 'meta';
@@ -22,6 +23,12 @@ has tc => (
     builder => '_build_tc',
 );
 
+has from_namespace => (
+    is => 'ro',
+    isa => ClassName,
+    predicate => 'has_from_namespace'
+);
+
 has tc_callback => (
     is       => 'ro',
     isa      => CodeRef,
@@ -30,8 +37,14 @@ has tc_callback => (
 
 sub find_registered_constraint {
     my ($self, $name) = @_;
+
+    my $type;
+    if ($self->has_from_namespace) {
+      $type = has_available_type_export($self->from_namespace, $name);
+    }
+
     my $registry = Moose::Util::TypeConstraints->get_type_constraint_registry;
-    return $registry->find_type_constraint($name) || $name;
+    return $type || $registry->find_type_constraint($name) || $name;
 }
 
 
@@ -85,8 +98,8 @@ sub _str_node {
                || $data->isa('PPI::Token::Number')
                || $data->isa('PPI::Token::Quote');
 
-    sub { 
-      $data->isa('PPI::Token::Number') 
+    sub {
+      $data->isa('PPI::Token::Number')
           ? $data->content
           : $data->string
     };
@@ -105,41 +118,69 @@ __END__
 
 =head1 NAME
 
-Parse::Method::Signatures::TypeConstraint - turn parse TC data into Moose TC object
+Parse::Method::Signatures::TypeConstraint - turn parsed TC data into Moose TC object
+
+=head1 DESCRIPTION
+
+Class used to turn PPI elements into L<Moose::Meta::TypeConstraint> objects.
 
 =head1 ATTRIBUTES
 
-=head2 str
-
-String representation of the type constraint
-
-=head2 data
-
-A simple hash based representation of the type constraint. Exact details of
-this structure yet to be documented. Read the code if you are interested.
-
 =head2 tc
+
+=over
 
 B<Lazy Build.>
 
-The L<Moose::Meta::TypeConstraint> object for this type constraint, build when
+=back
+
+The L<Moose::Meta::TypeConstraint> object for this type constraint, built when
 requested. L</tc_callback> will be called for each individual component type in
 turn.
 
 =head2 tc_callback
 
+=over
+
 B<Type:> CodeRef
+
+B<Default:> L</find_registered_constraint>
+
+=back
 
 Callback used to turn type names into type objects. See
 L<Parse::Method::Signatures/type_constraint_callback> for more details and an
 example.
 
+=head2 from_namespace
+
+=over
+
+B<Type:> ClassName
+
+=back
+
+If provided, then the default C<tc_callback> will search for L<MooseX::Types>
+in this package.
+
 =head1 METHODS
 
 =head2 find_registered_constraint
 
-Simply asks the L<Moose::Meta::TypeConstraint::Registry> for a type with the
-given name.
+Will search for an imported L<MooseX::Types> in L</from_namespace> (if
+provided). Failing that it will ask the L<Moose::Meta::TypeConstraint::Registry>
+for a type with the given name.
+
+If all else fails, it will simple return the type as a string, so that Moose's
+auto-vivification of classnames to type will work.
+
+=head2 to_string
+
+String representation of the type constraint, approximately as parsed.
+
+=head1 SEE ALSO
+
+L<Parse::Method::Signatures>, L<MooseX::Types>, L<MooseX::Types::Util>.
 
 =head1 AUTHORS
 
