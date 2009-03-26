@@ -15,7 +15,7 @@ use Parse::Method::Signatures::Types qw/
 use Carp qw/croak/;
 
 use namespace::clean -except => 'meta';
-our $VERSION = '1.003003';
+our $VERSION = '1.003004';
 our $ERROR_LEVEL = 0;
 our %LEXTABLE;
 our $DEBUG = $ENV{PMS_DEBUG} || 0;
@@ -92,6 +92,12 @@ sub BUILD {
             param_class
             type_constraint_class
         /;
+
+    my $ppi = $self->ppi;
+
+    # Skip leading whitespace
+    $self->consume_token
+      unless $ppi->significant;
 }
 
 sub create_param {
@@ -996,8 +1002,8 @@ L<MooseX::Types> then you will want a callback similar to this:
          : $pms_tc->find_registered_constraint($name);
  }
 
-Note that the above example is better provided by providing the L</in_package>
-attribute.
+Note that the above example is better provided by providing the
+L</from_namespace> attribute.
 
 =head1 CAVEATS
 
