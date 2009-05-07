@@ -1,85 +1,38 @@
-{
-   "no_index" : {
-      "directory" : [
-         "inc",
-         "t"
-      ]
-   },
-   "resources" : {
-      "homepage" : "http://github.com/ashb/parse-method-signatures/tree/master",
-      "repository" : "git://github.com/ashb/parse-method-signatures.git",
-      "license" : "http://dev.perl.org/licenses/"
-   },
-   "meta-spec" : {
-      "version" : 1.4,
-      "url" : "http://module-build.sourceforge.net/META-spec-v1.4.html"
-   },
-   "generated_by" : "Module::Install version 0.79 using Module::Install::JSONMETA version 3.000",
-   "distribution_type" : "module",
-   "version" : "1.003004",
-   "name" : "Parse-Method-Signatures",
-   "author" : [
-      "Ash Berlin <ash@cpan.org>."
-   ],
-   "license" : "perl",
-   "build_requires" : {
-      "Test::More" : 0,
-      "Test::Differences" : 0,
-      "Test::Exception" : 0,
-      "MooseX::Types::Structured" : 0,
-      "aliased" : 0
-   },
-   "provides" : {
-      "Parse::Method::Signatures::TypeConstraint" : {
-         "file" : "lib/Parse/Method/Signatures/TypeConstraint.pm"
-      },
-      "Parse::Method::Signatures" : {
-         "version" : "1.003004",
-         "file" : "lib/Parse/Method/Signatures.pm"
-      },
-      "Parse::Method::Signatures::Param" : {
-         "file" : "lib/Parse/Method/Signatures/Param.pm"
-      },
-      "Parse::Method::Signatures::Param::Unpacked::Array" : {
-         "file" : "lib/Parse/Method/Signatures/Param/Unpacked/Array.pm"
-      },
-      "Parse::Method::Signatures::Param::Unpacked::Hash" : {
-         "file" : "lib/Parse/Method/Signatures/Param/Unpacked/Hash.pm"
-      },
-      "Parse::Method::Signatures::Param::Unpacked" : {
-         "file" : "lib/Parse/Method/Signatures/Param/Unpacked.pm"
-      },
-      "Parse::Method::Signatures::Param::Placeholder" : {
-         "file" : "lib/Parse/Method/Signatures/Param/Placeholder.pm"
-      },
-      "Parse::Method::Signatures::Sig" : {
-         "file" : "lib/Parse/Method/Signatures/Sig.pm"
-      },
-      "Parse::Method::Signatures::Types" : {
-         "file" : "lib/Parse/Method/Signatures/Types.pm"
-      },
-      "Parse::Method::Signatures::Param::Positional" : {
-         "file" : "lib/Parse/Method/Signatures/Param/Positional.pm"
-      },
-      "Parse::Method::Signatures::ParamCollection" : {
-         "file" : "lib/Parse/Method/Signatures/ParamCollection.pm"
-      },
-      "Parse::Method::Signatures::Param::Named" : {
-         "file" : "lib/Parse/Method/Signatures/Param/Named.pm"
-      },
-      "Parse::Method::Signatures::Param::Bindable" : {
-         "file" : "lib/Parse/Method/Signatures/Param/Bindable.pm"
-      }
-   },
-   "requires" : {
-      "PPI" : "1.203",
-      "MooseX::Types::Moose" : 0,
-      "MooseX::Types::Structured" : 0,
-      "MooseX::Traits" : 0,
-      "namespace::clean" : "0.10",
-      "MooseX::Types" : "0.10",
-      "List::MoreUtils" : 0,
-      "Moose" : 0
-   },
-   "abstract" : "Perl6 like method signature parser"
-}
+---
+abstract: 'Perl6 like method signature parser'
+author:
+  - 'Ash Berlin <ash@cpan.org>.'
+build_requires:
+  ExtUtils::MakeMaker: 6.42
+  MooseX::Types::Structured: 0
+  Test::Differences: 0
+  Test::Exception: 0
+  Test::More: 0
+  aliased: 0
+configure_requires:
+  ExtUtils::MakeMaker: 6.42
+distribution_type: module
+generated_by: 'Module::Install version 0.85'
+license: perl
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+name: Parse-Method-Signatures
+no_index:
+  directory:
+    - inc
+    - t
+requires:
+  List::MoreUtils: 0
+  Moose: 0
+  MooseX::Traits: 0
+  MooseX::Types: 0.10
+  MooseX::Types::Moose: 0
+  MooseX::Types::Structured: 0
+  PPI: 1.203
+  namespace::clean: 0.10
+resources:
+  homepage: http://github.com/ashb/parse-method-signatures/tree/master
+  license: http://dev.perl.org/licenses/
+  repository: git://github.com/ashb/parse-method-signatures.git
+version: 1.003005
