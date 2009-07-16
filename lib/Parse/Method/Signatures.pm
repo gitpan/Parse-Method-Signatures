@@ -15,7 +15,7 @@ use Parse::Method::Signatures::Types qw/
 use Carp qw/croak/;
 
 use namespace::clean -except => 'meta';
-our $VERSION = '1.003008';
+our $VERSION = '1.003009';
 our $ERROR_LEVEL = 0;
 our %LEXTABLE;
 our $DEBUG = $ENV{PMS_DEBUG} || 0;
@@ -155,11 +155,14 @@ sub parse {
 sub _replace_regexps {
   my ($self, $doc) = @_;
 
+  REGEXP:
   foreach my $node ( @{ $doc->find('Token::Regexp') || [] } ) {
     my $str = $node->content;
 
+    next REGEXP unless defined $node->{operator};
+
     # Rather annoyingly, there are *no* methods on Token::Regexp;
-    my ($word, $rest) = $str =~ /^(@{[$node->{operator}]})(.*)$/s;
+    my ($word, $rest) = $str =~ /^(\Q@{[$node->{operator}]}\E)(.*)$/s;
 
     my $subdoc = PPI::Document->new(\$rest);
     my @to_add = reverse map { $_->remove } $subdoc->children;
