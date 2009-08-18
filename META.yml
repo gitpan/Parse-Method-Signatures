@@ -25,7 +25,7 @@ no_index:
 provides:
   Parse::Method::Signatures:
     file: lib/Parse/Method/Signatures.pm
-    version: 1.003010
+    version: 1.003011
   Parse::Method::Signatures::Param:
     file: lib/Parse/Method/Signatures/Param.pm
   Parse::Method::Signatures::Param::Bindable:
@@ -54,7 +54,7 @@ requires:
   List::MoreUtils: 0
   Moose: 0
   MooseX::Traits: 0.06
-  MooseX::Types: 0.10
+  MooseX::Types: 0.17
   MooseX::Types::Moose: 0
   MooseX::Types::Structured: 0
   PPI: 1.203
@@ -63,4 +63,4 @@ resources:
   homepage: http://github.com/ashb/Parse-Method-Signatures/tree/master
   license: http://dev.perl.org/licenses/
   repository: git://github.com/ashb/Parse-Method-Signatures.git
-version: 1.003010
+version: 1.003011

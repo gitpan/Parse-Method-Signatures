@@ -15,7 +15,7 @@ use Parse::Method::Signatures::Types qw/
 use Carp qw/croak/;
 
 use namespace::clean -except => 'meta';
-our $VERSION = '1.003010';
+our $VERSION = '1.003011';
 our $ERROR_LEVEL = 0;
 our %LEXTABLE;
 our $DEBUG = $ENV{PMS_DEBUG} || 0;
@@ -1050,9 +1050,6 @@ L<Devel::Declare> which is used by most modules that use this (currently by
 all modules known to the author.)
 
 L<http://github.com/ashb/trycatch/tree>.
-
-L<MooseX::Method::Signatures> and L<MooseX::Declare> which are due to be ported
-to use this module.
 
 =head1 LICENSE
 
