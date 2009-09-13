@@ -25,7 +25,7 @@ no_index:
 provides:
   Parse::Method::Signatures:
     file: lib/Parse/Method/Signatures.pm
-    version: 1.003011
+    version: 1.003012
   Parse::Method::Signatures::Param:
     file: lib/Parse/Method/Signatures/Param.pm
   Parse::Method::Signatures::Param::Bindable:
@@ -63,4 +63,4 @@ resources:
   homepage: http://github.com/ashb/Parse-Method-Signatures/tree/master
   license: http://dev.perl.org/licenses/
   repository: git://github.com/ashb/Parse-Method-Signatures.git
-version: 1.003011
+version: 1.003012
