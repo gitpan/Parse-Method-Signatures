@@ -24,6 +24,7 @@ no_index:
     - inc
     - t
 requires:
+  Class::Load: 0.19
   List::MoreUtils: 0.20
   Moose: 0
   MooseX::Traits: 0.06
@@ -36,4 +37,4 @@ resources:
   homepage: http://github.com/ashb/Parse-Method-Signatures/tree/master
   license: http://dev.perl.org/licenses/
   repository: git://github.com/ashb/Parse-Method-Signatures.git
-version: 1.003015
+version: 1.003016
